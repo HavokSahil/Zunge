@@ -3,9 +3,14 @@
 #include <zip.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 void extractEPUB(char *filename)
 {
+
+    int result = mkdir("/tmp/_zunge_cache__", 0777);
+    printf("The result is %d\n", result);
     zip_t *zip = zip_open(filename, 0, NULL);
     if (!zip)
     {
@@ -22,7 +27,8 @@ void extractEPUB(char *filename)
             zip_file_t *file = zip_fopen_index(zip, i, 0);
             char buffer[1024];
             int bytes_read;
-            char *save_file = "hello" + (char)itoa(entry_name);
+            char save_file[40] = "/tmp/_zunge_cache__/";
+            generateNameFromInt(save_file, i);
             printf("%s\n", save_file);
             FILE *fp = fopen(save_file, "w");
             if (!fp)

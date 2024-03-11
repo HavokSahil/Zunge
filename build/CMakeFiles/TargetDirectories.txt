@@ -1,3 +1,0 @@
-/home/sahil/Documents/Projects/Zunge/build/CMakeFiles/zunge.dir
-/home/sahil/Documents/Projects/Zunge/build/CMakeFiles/edit_cache.dir
-/home/sahil/Documents/Projects/Zunge/build/CMakeFiles/rebuild_cache.dir

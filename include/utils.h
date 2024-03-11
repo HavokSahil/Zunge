@@ -5,5 +5,5 @@
 #include <string.h>
 
 int is_html_file(char filename[]);
-
+void generateNameFromInt(char name[], int n);
 #endif

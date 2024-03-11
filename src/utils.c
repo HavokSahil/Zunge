@@ -1,5 +1,5 @@
 #include "utils.h"
-
+#include <string.h>
 int is_html_file(char filename[])
 {
     int len = strlen(filename);
@@ -9,4 +9,11 @@ int is_html_file(char filename[])
     }
     else
         return 0;
+}
+
+void generateNameFromInt(char str[], int n)
+{
+    char temp[20] = "";
+    sprintf(temp, "%d.html", n);
+    strcat(str, temp);
 }

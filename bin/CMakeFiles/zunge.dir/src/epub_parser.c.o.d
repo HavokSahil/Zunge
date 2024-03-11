@@ -60,4 +60,7 @@ CMakeFiles/zunge.dir/src/epub_parser.c.o: \
  /usr/include/x86_64-linux-gnu/bits/time.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_tm.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_itimerspec.h \
- /home/sahil/Documents/Projects/Zunge/include/utils.h
+ /home/sahil/Documents/Projects/Zunge/include/utils.h \
+ /usr/include/x86_64-linux-gnu/sys/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/stat.h \
+ /usr/include/x86_64-linux-gnu/bits/struct_stat.h

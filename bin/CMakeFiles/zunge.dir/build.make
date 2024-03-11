@@ -156,6 +156,7 @@ zunge: CMakeFiles/zunge.dir/src/pdf_parser.c.o
 zunge: CMakeFiles/zunge.dir/src/tts.c.o
 zunge: CMakeFiles/zunge.dir/src/utils.c.o
 zunge: CMakeFiles/zunge.dir/build.make
+zunge: /usr/local/lib/libzip.so
 zunge: CMakeFiles/zunge.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/sahil/Documents/Projects/Zunge/bin/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking C executable zunge"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/zunge.dir/link.txt --verbose=$(VERBOSE)

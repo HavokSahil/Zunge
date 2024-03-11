@@ -3,6 +3,10 @@ project(zunge VERSION 1.0)
 
 # Set C standard to C11
 set(CMAKE_C_COMPILER gcc-11)
+# Compiler flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -lzip")
+
+find_library(LIBZIP_LIBRARY NAMES zip)
 
 # Set the source files
 set(SOURCE_FILES
@@ -19,11 +23,12 @@ set(HEADER_FILES
     include/epub_parser.h
     include/tts.h
     include/utils.h
-    /usr/include/zip.h
 )
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include /usr/include)
 
 # Add an executable target
 add_executable(zunge ${SOURCE_FILES} ${HEADER_FILES})
-
 # Specify include directories
-target_include_directories(zunge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include /usr/include)
+target_include_directories(zunge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/zipc)
+target_link_libraries(zunge ${LIBZIP_LIBRARY})

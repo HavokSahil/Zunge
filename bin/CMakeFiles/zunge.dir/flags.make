@@ -4,7 +4,7 @@
 # compile C with gcc-11
 C_DEFINES = 
 
-C_INCLUDES = -I/home/sahil/Documents/Projects/Zunge/include
+C_INCLUDES = -I/home/sahil/Documents/Projects/Zunge/include -I/home/sahil/Documents/Projects/Zunge/zipc
 
-C_FLAGS = 
+C_FLAGS =  -g -Wall -lzip
 
