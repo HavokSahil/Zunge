@@ -7,6 +7,7 @@ set(CMAKE_C_COMPILER gcc-11)
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -lzip")
 
 find_library(LIBZIP_LIBRARY NAMES zip)
+find_package(LibXml2 REQUIRED)
 
 # Set the source files
 set(SOURCE_FILES
@@ -25,10 +26,9 @@ set(HEADER_FILES
     include/utils.h
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include /usr/include)
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include /usr/include ${LIBXML2_INCLUDE_DIR})
 # Add an executable target
 add_executable(zunge ${SOURCE_FILES} ${HEADER_FILES})
 # Specify include directories
 target_include_directories(zunge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/zipc)
-target_link_libraries(zunge ${LIBZIP_LIBRARY})
+target_link_libraries(zunge ${LIBZIP_LIBRARY} ${LIBXML2_LIBRARIES})

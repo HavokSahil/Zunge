@@ -41,6 +41,7 @@ void extractEPUB(char *filename)
                 fwrite(buffer, 1, bytes_read, fp);
             }
             fclose(fp);
+            html_parser(save_file);
             zip_fclose(file);
         }
     }
