@@ -1,0 +1,1 @@
+gcc-11 CMakeFiles/zunge.dir/src/main.c.o CMakeFiles/zunge.dir/src/epub_parser.c.o CMakeFiles/zunge.dir/src/pdf_parser.c.o CMakeFiles/zunge.dir/src/tts.c.o CMakeFiles/zunge.dir/src/utils.c.o -o zunge 
