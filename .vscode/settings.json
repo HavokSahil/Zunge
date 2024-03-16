@@ -4,6 +4,8 @@
     "stdio.h": "c",
     "stdlib.h": "c",
     "string.h": "c",
-    "string": "c"
+    "string": "c",
+    "fitz.h": "c",
+    "tts.h": "c"
   }
 }

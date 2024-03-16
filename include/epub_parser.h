@@ -13,6 +13,6 @@ typedef struct
     size_t size;
 } epub_file;
 
-void extractEPUB(char *filename);
+char *extractEPUB(char *filename);
 
 #endif

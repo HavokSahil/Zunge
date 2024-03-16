@@ -6,17 +6,36 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-void extractEPUB(char *filename)
+char *extractEPUB(char *filename)
 {
+    printf("\nChecking for temp directory......");
+    if (checkExistDirectory("/tmp/_zunge_cache__") == SUCCESS)
+    {
+        printf("done\n");
+    }
+    else
+    {
+        printf("(not exist)\nCreating directory......");
+        int result = mkdir("/tmp/_zunge_cache__", 0777);
+        if (result == SUCCESS)
+        {
+            printf("success\n");
+        }
+        else
+        {
+            printf("failure\n");
+        }
+    }
 
-    int result = mkdir("/tmp/_zunge_cache__", 0777);
-    printf("The result is %d\n", result);
+    printf("Opening EPUB file......");
     zip_t *zip = zip_open(filename, 0, NULL);
     if (!zip)
     {
-        fprintf(stderr, "Error opening EPUB file: %s\n", filename);
+        printf("failed\n");
         exit(1);
     }
+    printf("done\n");
+
     int num_entries = zip_get_num_entries(zip, 0);
 
     for (int i = 0; i < num_entries; ++i)
@@ -29,11 +48,10 @@ void extractEPUB(char *filename)
             int bytes_read;
             char save_file[40] = "/tmp/_zunge_cache__/";
             generateNameFromInt(save_file, i);
-            printf("%s\n", save_file);
             FILE *fp = fopen(save_file, "w");
             if (!fp)
             {
-                fprintf(stderr, "Error creating file %s\n", save_file);
+                fprintf(stderr, "failed to save %s\n", save_file);
                 continue;
             }
             while ((bytes_read = zip_fread(file, buffer, sizeof(buffer))))
@@ -45,4 +63,7 @@ void extractEPUB(char *filename)
             zip_fclose(file);
         }
     }
+
+    char *output_file = "output.txt";
+    return output_file;
 }
