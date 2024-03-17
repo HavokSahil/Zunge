@@ -1,37 +1,69 @@
+![logo](https://github.com/HavokSahil/Zunge/assets/87008169/94a89f72-7f3b-4e7e-a907-a91264f506cf)
+
 # Zunge
-**Zunge** is a OpenSource document reader. It generates mp3 file from the documents like *PDF* or *EPUB*. It uses [festival library](https://github.com/festvox/festival) for voice generation and [lame library](https://lame.sourceforge.io/)  for audio compression.
 
-## Requirements
-Install required libraries with 
+Zunge is a text documents to audio converter with interactive reader. It uses [festival library](http://festvox.org/festival/) for audio generation and [lame](https://lame.sourceforge.io/) for audio compression.
 
-`$ apt-get install -y libzip-dev libxml2-dev cmake libmp3lame-dev python3 python3-pip lame festival libavformat-dev libavcodec-dev libavutil-dev` 
+## Features
 
-`$ pip3 install --no-cache-dir setuptools PyMuPDF` 
-
-**GCC-11**
-
-## Installation
-Clone the repository with \
-`$ git clone https://github.com/HavokSahil/Zunge` \
-`$ cd Zunge`
+- PDF, EPUB to MP3
+- Interactive Reader
+- Lightweight
+- Runs on terminal
 
 
-Build Zunge binaries \
-`$ mkdir build` \
-`$ cd build` \
-`$ cmake ..` \
-`$ make` 
+## Deployment
 
-Install the binaries \
-`$ make install` 
+To deploy this project, clone this repository
 
-See Usage with \
-`$ zunge -h`
+```bash
+  git clone https://github.com/havoksahil/zunge
+  cd zunge
+  mkdir build
+  cd build
+  cmake ..
+  make
+  sudo make install
+```
 
-## Interactive Reader Mode
-![image](https://github.com/HavokSahil/Zunge/assets/87008169/e81237f7-c34f-4f2a-a3c1-9eae62be4879)
 
-## Running with Docker
-You must have docker installed.\
-`$ docker build -t zunge-env .` \
-`$ docker run -it zunge-env`
+## Usage/Examples
+
+```bash
+# create mp3 file from pdf
+zunge -f example.pdf -o out.mp3
+
+# create mp3 file from epub
+zunge -f example.epub -o story.mp3
+
+# start interactive reader
+zunge -f example.epub -i
+```
+
+
+## Screenshots
+
+![App Screenshot](https://github.com/HavokSahil/Zunge/assets/87008169/e81237f7-c34f-4f2a-a3c1-9eae62be4879)
+
+
+## Arguments
+
+
+
+| Flags     | Name     | Description                |
+| :-------- | :------- | :------------------------- |
+| `-f`      | `filename`| **Required**. input filename |
+| `-o`      | `filename` | **Optional**. output filename |
+| `-i`      | `interactive` | **Optional**. interactive mode |
+| `-b`      | `bitrate` | **Optional**. bitrate of mp3 compression |
+| `-h`      | `filename` | **Optional**. show help |
+
+
+## Tech Stack
+
+**Application:** C, Bash, Python
+
+
+## Support
+
+For support, email havoksahil@gmail.com
