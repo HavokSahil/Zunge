@@ -9,6 +9,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Wall -lzip -lavformat -lavcodec -lavutil
 find_library(LIBZIP_LIBRARY NAMES zip)
 find_package(LibXml2 REQUIRED)
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
+find_package(Curses REQUIRED)
 find_library(LAME_LIBRARIES NAMES mp3lame)
 
 
@@ -19,6 +20,7 @@ set(SOURCE_FILES
     src/pdf_parser.c
     src/tts.c
     src/utils.c
+    src/interactive.c
 )
 
 # Set the header files
@@ -27,6 +29,7 @@ set(HEADER_FILES
     include/epub_parser.h
     include/tts.h
     include/utils.h
+    include/interactive.h
 )
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 set(BUILD_DIR ${CMAKE_BINARY_DIR})
@@ -39,5 +42,5 @@ add_executable(zunge ${SOURCE_FILES} ${HEADER_FILES})
 # Define the Python script path as a compile defination
 target_compile_definitions(zunge PUBLIC PYTHON_SCRIPT_PATH=${CMAKE_SOURCE_DIR}/src/pdf_to_text.py)
 # Specify include directories
-target_include_directories(zunge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(zunge ${LIBZIP_LIBRARY} ${LIBXML2_LIBRARIES} ${LAME_LIBRARIES})
+target_include_directories(zunge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CURSES_INCLUDE_DIR})
+target_link_libraries(zunge ${LIBZIP_LIBRARY} ${LIBXML2_LIBRARIES} ${LAME_LIBRARIES} ${CURSES_LIBRARIES})

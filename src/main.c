@@ -5,6 +5,9 @@
 #include "pdf_parser.h"
 #include "tts.h"
 #include <argp.h>
+#include "interactive.h"
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define INTERACTIVE 1
 #define NOT_INTERACTIVE 0
@@ -68,6 +71,8 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state)
 }
 
 void nonInteractivepanel(arguments args);
+void InteractivePanel(arguments args);
+void cacheConfig();
 
 // Define argp parser
 static struct argp argp = {options, parse_opt, NULL, doc};
@@ -93,6 +98,7 @@ int main(int argc, char **argv)
     {
     case INTERACTIVE:
         printf("Yay! This is interactive time.\n");
+        InteractivePanel(args);
         break;
     case NOT_INTERACTIVE:
         nonInteractivepanel(args);
@@ -107,18 +113,70 @@ int main(int argc, char **argv)
 
 void nonInteractivepanel(arguments args)
 {
+
     int fileType = get_file_type(args.filename);
-    char *filename = "";
+    char filename[128];
+    char proc_filename[256];
+
+    cacheConfig();
+
     switch (fileType)
     {
-    case TYPE_EPUB:
-        filename = extractEPUB(args.filename);
-        break;
     case TYPE_PDF:
-        filename = readPDF(args.filename);
+        readPDF(args.filename, filename);
+        break;
+    case TYPE_EPUB:
+        extractEPUB(args.filename, filename);
         break;
     default:
         break;
     }
-    text_file_to_voice(filename, args.output);
+    sprintf(proc_filename, "%s%s", CACHE_PREFIX, PROC_OUTPUT_TEXT);
+    text_file_to_voice(proc_filename, args.output);
+}
+
+void InteractivePanel(arguments args)
+{
+    int fileType = get_file_type(args.filename);
+    char filename[128];
+
+    cacheConfig();
+
+    switch (fileType)
+    {
+    case TYPE_EPUB:
+        extractEPUB(args.filename, filename);
+        break;
+    case TYPE_PDF:
+        readPDF(args.filename, filename);
+        break;
+    default:
+        break;
+    }
+
+    char dest[256];
+    sprintf(dest, "%s%s", CACHE_PREFIX, PROC_OUTPUT_TEXT);
+    interactive_window(dest);
+}
+
+void cacheConfig()
+{
+    printf("\nChecking for temp directory......");
+    if (checkExistDirectory(CACHE_PREFIX) == SUCCESS)
+    {
+        printf("done\n");
+    }
+    else
+    {
+        printf("(not exist)\nCreating directory......");
+        int result = mkdir(CACHE_PREFIX, 0777);
+        if (result == SUCCESS)
+        {
+            printf("success\n");
+        }
+        else
+        {
+            printf("failure\n");
+        }
+    }
 }
