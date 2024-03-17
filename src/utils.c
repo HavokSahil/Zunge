@@ -292,11 +292,19 @@ int isAllowedPunctuation(char c)
 void preprocessLine(char line[], char dest[])
 {
     int i = 0, j = 0;
+    char prev = '\0';
     while (line[i] != '\0' && j < TEXT_WINDOW - 1)
     {
         if (isAllowedPunctuation(line[i]) || line[i] == ' ' || line[i] == '\n' || line[i] == '\t' || isalpha(line[i]) || isdigit(line[i]))
         {
-            dest[j++] = line[i];
+            if (line[i] == '\n' && prev == '\n')
+            {
+                prev = line[i];
+            }
+            else
+            {
+                dest[j++] = line[i];
+            }
         }
         i++;
     }

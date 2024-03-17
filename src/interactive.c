@@ -53,31 +53,46 @@ void interactive_window(char *proc_file)
     char prevText[TEXT_WINDOW] = "";
     char presentTEXT[TEXT_WINDOW] = "";
 
-    signal(SIGINT, interrupt_handler);
-
     char line[TEXT_WINDOW];
+    timeout(0.1);
+    int ch;
+
     while (!stop_flag && fgets(line, sizeof(line), input_file) != NULL)
     {
-        int start_col = max(0, (x_center - strlen(line) / 2));
-        attron(COLOR_PAIR(4));
-        mvprintw(y_center - 2, start_col, "%s", prevText);
+        if (isWhiteSpace(line) == SUCCESS)
+        {
+            continue;
+        }
+        erase();
+        int start_col1 = max(0, (x_center - strlen(prevText) / 2));
+        attron(A_BOLD | COLOR_PAIR(4));
+        mvprintw(y_center - 3, start_col1, "%s", prevText);
 
         attron(A_BOLD | COLOR_PAIR(1));
-        mvprintw(y_center, start_col, "%s", presentTEXT);
+        int start_col2 = max(0, (x_center - strlen(presentTEXT) / 2));
+        mvprintw(y_center, start_col2, "%s", presentTEXT);
 
-        attron(COLOR_PAIR(4));
-        mvprintw(y_center + 2, start_col, "%s", line);
+        attron(A_BOLD | COLOR_PAIR(4));
+        int start_col3 = max(0, (x_center - strlen(line) / 2));
+        mvprintw(y_center + 3, start_col3, "%s", line);
 
         attron(COLOR_PAIR(3));
-        mvprintw(rows - 5, 0, "Print Ctrl+C  twice to exit");
+        mvprintw(rows - 4, 0, "Hold q at end of line to quit.");
         refresh();
 
-        char command[TEXT_WINDOW + 24];
-        snprintf(command, sizeof(command), "echo '%s' | festival --tts", presentTEXT);
+        char command[TEXT_WINDOW + 36];
+        snprintf(command, sizeof(command), "echo '%s' | festival --tts > /dev/null", presentTEXT);
         system(command);
+
+        ch = getch();
+        if (ch == 'q')
+        {             // ASCII code for Ctrl+C
+            endwin(); // End curses mode before exiting
+            exit(EXIT_SUCCESS);
+        }
+
         strcpy(prevText, presentTEXT);
         strcpy(presentTEXT, line);
-        sleep(1);
     }
 
     endwin();

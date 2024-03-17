@@ -44,3 +44,5 @@ target_compile_definitions(zunge PUBLIC PYTHON_SCRIPT_PATH=${CMAKE_SOURCE_DIR}/s
 # Specify include directories
 target_include_directories(zunge PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CURSES_INCLUDE_DIR})
 target_link_libraries(zunge ${LIBZIP_LIBRARY} ${LIBXML2_LIBRARIES} ${LAME_LIBRARIES} ${CURSES_LIBRARIES})
+
+install(TARGETS zunge DESTINATION bin)
