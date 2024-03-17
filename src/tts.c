@@ -9,6 +9,11 @@
 
 void text_file_to_voice(char *source, char *output)
 {
+    char dest[256];
+    char command[1024];
+    char *filename;
+    int result;
+
     printf("Checking for directories.......");
     if (checkExistDirectory("/tmp/_zunge_cache__") == FAILURE)
     {
@@ -28,17 +33,14 @@ void text_file_to_voice(char *source, char *output)
     }
     mkdir("/tmp/_zunge_cache__/wav", 0777);
     // Extract filename from relative path of file
-    char *filename = extractFilename(source);
-    char dest[256];
+    filename = extractFilename(source);
 
     sprintf(dest, "/tmp/_zunge_cache__/wav/%s.wav", filename);
-
-    char command[255];
-    sprintf(command, "text2wave %s -o /tmp/_zunge_cache__/wav/%s.wav\n", source, filename);
+    sprintf(command, "text2wave %s -o /tmp/_zunge_cache__/wav/%s.wav >/dev/null 2>&1\n", source, filename); // Redirecting output to /dev/null
     printf("\nThis may take a while. Press Ctrl+C to exit.\n");
     printf("Generating Wave file......");
     fflush(stdout);
-    int result = system(command);
+    result = system(command);
     if (result)
     {
         printf("(failed)\n");

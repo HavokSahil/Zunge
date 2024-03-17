@@ -6,13 +6,6 @@
 #include <string.h>
 #include <zip.h>
 
-typedef struct
-{
-    char *filename;
-    char *content;
-    size_t size;
-} epub_file;
-
-char *extractEPUB(char *filename);
+void extractEPUB(char *source, char *dest);
 
 #endif

@@ -3,32 +3,15 @@
 #include <zip.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 
-char *extractEPUB(char *filename)
+void extractEPUB(char *filename, char *dest)
 {
-    printf("\nChecking for temp directory......");
-    if (checkExistDirectory("/tmp/_zunge_cache__") == SUCCESS)
-    {
-        printf("done\n");
-    }
-    else
-    {
-        printf("(not exist)\nCreating directory......");
-        int result = mkdir("/tmp/_zunge_cache__", 0777);
-        if (result == SUCCESS)
-        {
-            printf("success\n");
-        }
-        else
-        {
-            printf("failure\n");
-        }
-    }
+    int num_entries;
+    zip_t *zip = NULL;
+    char proc_text[256];
 
     printf("Opening EPUB file......");
-    zip_t *zip = zip_open(filename, 0, NULL);
+    zip = zip_open(filename, 0, NULL);
     if (!zip)
     {
         printf("failed\n");
@@ -36,7 +19,10 @@ char *extractEPUB(char *filename)
     }
     printf("done\n");
 
-    int num_entries = zip_get_num_entries(zip, 0);
+    num_entries = zip_get_num_entries(zip, 0);
+
+    sprintf(dest, "%s%s", CACHE_PREFIX, OUTPUT_TEXT);
+    remove(dest);
 
     for (int i = 0; i < num_entries; ++i)
     {
@@ -46,7 +32,7 @@ char *extractEPUB(char *filename)
             zip_file_t *file = zip_fopen_index(zip, i, 0);
             char buffer[1024];
             int bytes_read;
-            char save_file[40] = "/tmp/_zunge_cache__/";
+            char save_file[40] = CACHE_PREFIX;
             generateNameFromInt(save_file, i);
             FILE *fp = fopen(save_file, "w");
             if (!fp)
@@ -59,11 +45,14 @@ char *extractEPUB(char *filename)
                 fwrite(buffer, 1, bytes_read, fp);
             }
             fclose(fp);
-            html_parser(save_file);
+
+            html_parser(save_file, dest);
             zip_fclose(file);
         }
     }
 
-    char *output_file = "output.txt";
-    return output_file;
+    sprintf(proc_text, "%s%s", CACHE_PREFIX, PROC_OUTPUT_TEXT);
+    printf("Preprocessing text file......");
+    preprocessTextFile(dest, proc_text);
+    printf("done\n");
 }

@@ -5,18 +5,21 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-char *readPDF(char *filename)
+void readPDF(char *filename, char *dest)
 {
     FILE *fp;
     char path[128];
-    char dest[268];
     char command[1024];
     char source[268];
     char executableDir[256];
+    char proc_text[256];
 
     getExecutableDirectory(executableDir, sizeof(executableDir));
     sprintf(source, "%s/%s", executableDir, filename);
-    sprintf(dest, "%s/%s", executableDir, "output.txt");
+
+    sprintf(dest, "%s%s", CACHE_PREFIX, "output.txt");
+    remove(dest);
+
     sprintf(command, "python3 %s/pdf_to_text.py %s %s", executableDir, source, dest);
 
     printf("\nConverting PDF to text......");
@@ -31,7 +34,7 @@ char *readPDF(char *filename)
     fgets(path, sizeof(path) - 1, fp);
     if (strcmp(path, "0"))
     {
-        printf("\nText file saved to: %s/%s\n\n", executableDir, dest);
+        printf("\nText file saved to: %s\n\n", dest);
     }
     else
     {
@@ -40,6 +43,9 @@ char *readPDF(char *filename)
     }
 
     pclose(fp);
-    char *output_file = "output.txt";
-    return output_file;
+
+    sprintf(proc_text, "%s%s", CACHE_PREFIX, PROC_OUTPUT_TEXT);
+    printf("Preprocessing file......");
+    preprocessTextFile(dest, proc_text);
+    printf("done\n");
 }

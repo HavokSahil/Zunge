@@ -80,7 +80,7 @@ void extract_p_tags(xmlNode *node, FILE *output_file)
     }
 }
 
-char *html_parser(char *read_file)
+char *html_parser(char *read_file, char *save_file)
 {
     xmlDoc *doc = NULL;
     xmlNode *root_element = NULL;
@@ -95,7 +95,7 @@ char *html_parser(char *read_file)
 
     else
     {
-        FILE *output_file = fopen("output.txt", "a");
+        FILE *output_file = fopen(save_file, "a");
         if (output_file == NULL)
         {
             fprintf(stderr, "Error: could not open output file\n");
@@ -272,4 +272,77 @@ int wav2mp3(char *source, char *dest)
     fclose(pcm);
 
     return SUCCESS;
+}
+
+int isAllowedPunctuation(char c)
+{
+    switch (c)
+    {
+    case ',':
+    case '.':
+    case '!':
+    case '"':
+    case ';':
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+void preprocessLine(char line[], char dest[])
+{
+    int i = 0, j = 0;
+    while (line[i] != '\0' && j < TEXT_WINDOW - 1)
+    {
+        if (isAllowedPunctuation(line[i]) || line[i] == ' ' || line[i] == '\n' || line[i] == '\t' || isalpha(line[i]) || isdigit(line[i]))
+        {
+            dest[j++] = line[i];
+        }
+        i++;
+    }
+    if (j < TEXT_WINDOW)
+    {
+        dest[j] = '\0';
+    }
+    else
+    {
+        dest[TEXT_WINDOW - 1] = '\0';
+    }
+}
+
+int preprocessTextFile(char *source, char dest[])
+{
+    FILE *inputFile = fopen(source, "r");
+    if (inputFile == NULL)
+    {
+        return FAILURE;
+    }
+
+    FILE *outputFile = fopen(dest, "w");
+    if (outputFile == NULL)
+    {
+        fclose(inputFile);
+        return FAILURE;
+    }
+
+    char line[TEXT_WINDOW];
+    char proc_line[TEXT_WINDOW];
+    while (fgets(line, sizeof(line), inputFile) != NULL)
+    {
+        preprocessLine(line, proc_line);
+        fputs(proc_line, outputFile);
+    }
+
+    fclose(inputFile);
+    fclose(outputFile);
+    return SUCCESS;
+}
+
+int max(int a, int b)
+{
+    return (a > b) ? a : b;
+}
+int min(int a, int b)
+{
+    return (a < b) ? a : b;
 }
