@@ -1,4 +1,6 @@
-![logo](https://github.com/HavokSahil/Zunge/assets/87008169/94a89f72-7f3b-4e7e-a907-a91264f506cf)
+![logo](https://github.com/HavokSahil/Zunge/assets/87008169/a5d7f23e-d5e3-4348-9a20-70345ece156e)
+
+
 
 # Zunge
 
