@@ -40,8 +40,12 @@ For a large project with multiple libraries and dependencies we generally use bu
 
 **Note: You don't have to learn CMAKE now, just have an idea what it is. I will provide the code for it to you. Its not important to know it for this project.**
 
+### IV. Flow of the Project
+![graph](https://github.com/HavokSahil/Zunge/assets/87008169/e632e2fa-2ba6-4579-9793-757c15bfffd1)
 
-### Project Directory Structure
+
+
+### V. Project Directory Structure
 Following is the project structure of Zunge
 ```md
 Zunge/
