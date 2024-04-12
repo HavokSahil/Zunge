@@ -1,356 +1,338 @@
-#include "utils.h"
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <string.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <ctype.h>
-#include <lame/lame.h>
+#include "utils.h"  // Custom utility header file
+#include <string.h> // String manipulation
+#include <dirent.h> // Directory manipulation
+#include <stdlib.h> // General utilities
+#include <ctype.h>  // Character classification
+#include <stdio.h>  // Standard input/output
+#include <regex.h>  // Regular Expression header file
 
-#define SAMPLE_RATE 7864
-#define BIT_RATE 128
-
-int is_html_file(char filename[])
+// Function to determine the file type based on its extension
+int fileType(char *filename)
 {
     int len = strlen(filename);
-    if (len >= 5 && (strcmp(filename + len - 5, ".html") == 0 || strcmp(filename + len - 4, "htm") == 0))
-    {
-        return 1;
-    }
+    if ((len >= 5 && strcmp(filename + len - 5, ".html") == 0) || strcmp(filename + len - 4, ".htm") == 0)
+        return TYPE_HTML;
+    else if (len >= 5 && strcmp(filename + len - 5, ".epub") == 0)
+        return TYPE_EPUB;
+    else if (len >= 4 && strcmp(filename + len - 4, ".pdf") == 0)
+        return TYPE_PDF;
+    else if (len >= 4 && strcmp(filename + len - 4, ".txt") == 0)
+        return TYPE_TXT;
     else
-        return 0;
+        return TYPE_UNSUPPORTED;
 }
 
-int get_file_type(char filename[])
+// Function to check if a directory exists
+int existDirectory(char *path)
 {
-    int len = strlen(filename);
-    if (len >= 5 && (strcmp(filename + len - 5, ".epub") == 0))
-    {
-        return 1;
-    }
-    else if (len >= 5 && (strcmp(filename + len - 4, ".pdf") == 0))
-    {
-        return 2;
-    }
-    else if (len >= 4 && (strcmp(filename + len - 4, ".txt") == 0))
-    {
-        return 3;
-    }
-    else
-        return -1;
-}
-
-void generateNameFromInt(char str[], int n)
-{
-    char temp[20] = "";
-    sprintf(temp, "%d.html", n);
-    strcat(str, temp);
-}
-
-void extract_p_tags(xmlNode *node, FILE *output_file)
-{
-    xmlNode *cur_node = NULL;
-    for (cur_node = node; cur_node; cur_node = cur_node->next)
-    {
-        if (cur_node->type == XML_ELEMENT_NODE && (!xmlStrcmp(cur_node->name, (const xmlChar *)"p") || !xmlStrcmp(cur_node->name, (const xmlChar *)"h1") || !xmlStrcmp(cur_node->name, (const xmlChar *)"h2") || !xmlStrcmp(cur_node->name, (const xmlChar *)"h3")))
-        {
-            xmlNode *text_node = cur_node->children;
-            if (text_node && text_node->type == XML_TEXT_NODE)
-            {
-                if (!xmlStrcmp(cur_node->name, (const xmlChar *)"h1"))
-                {
-                    fprintf(output_file, "%s\n\n\n\n", text_node->content);
-                }
-                else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"h2"))
-                {
-                    fprintf(output_file, "%s\n\n\n", text_node->content);
-                }
-                else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"h3"))
-                {
-                    fprintf(output_file, "%s\n\n", text_node->content);
-                }
-                else
-                {
-                    fprintf(output_file, "%s\n", text_node->content);
-                }
-                fseek(output_file, 0, SEEK_END);
-            }
-        }
-        extract_p_tags(cur_node->children, output_file);
-    }
-}
-
-char *html_parser(char *read_file, char *save_file)
-{
-    xmlDoc *doc = NULL;
-    xmlNode *root_element = NULL;
-
-    // Load HTML file
-    doc = xmlReadFile(read_file, NULL, 0);
-
-    if (doc == NULL)
-    {
-        fprintf(stderr, "Could not parse file.\n");
-    }
-
-    else
-    {
-        FILE *output_file = fopen(save_file, "a");
-        if (output_file == NULL)
-        {
-            fprintf(stderr, "Error: could not open output file\n");
-            xmlFreeDoc(doc);
-            exit(1);
-        }
-
-        // Get the root element
-        root_element = xmlDocGetRootElement(doc);
-
-        // Extract content of <p> tags
-        extract_p_tags(root_element, output_file);
-
-        fclose(output_file);
-
-        // Free the document
-        xmlFreeDoc(doc);
-
-        xmlCleanupParser();
-    }
-    char *output_filename = "output.txt";
-    return output_filename;
-}
-
-size_t FindStringInBuffer(const char *buffer, const char *searchStr, size_t bufferLen)
-{
-    const char *foundStr = strstr(buffer, searchStr);
-    if (foundStr != NULL)
-    {
-        return foundStr - buffer;
-    }
-    else
-    {
-        return bufferLen;
-    }
-}
-
-// Function to get the directory of the executable
-void getExecutableDirectory(char *buffer, size_t bufferSize)
-{
-#ifdef _WIN32
-    GetModuleFileName(NULL, buffer, bufferSize);
-    PathRemoveFileSpec(buffer);
-#else
-    ssize_t len = readlink("/proc/self/exe", buffer, bufferSize);
-    if (len != -1)
-    {
-        buffer[len] = '\0';
-        char *lastSlash = strrchr(buffer, '/');
-        if (lastSlash != NULL)
-        {
-            *lastSlash = '\0'; // Remove the executable name
-        }
-    }
-#endif
-}
-
-void generateScriptFromText(char filename[])
-{
-    printf("%s\n", filename);
-}
-
-void init_progress_bar(ProgressBar *bar, int max_value, char fill_char, char empty_char)
-{
-    bar->current_value = 0;
-    bar->max_value = max_value;
-    bar->fill_char = fill_char;
-    bar->empty_char = empty_char;
-}
-
-void update_progress_bar(ProgressBar *bar, float increment)
-{
-    bar->current_value = increment;
-    if (bar->current_value > bar->max_value)
-    {
-        bar->current_value = bar->max_value;
-    }
-}
-
-void draw_progress_bar(ProgressBar *bar)
-{
-    int i;
-    printf("The value of current_value is %.3f\n", bar->current_value);
-    printf("The value of total is %d\n", bar->max_value);
-    for (i = 0; i < (int)bar->current_value; i++)
-    {
-        printf("%c", bar->fill_char);
-    }
-    for (i = (int)bar->current_value; i > bar->max_value; i++)
-    {
-        printf("%c", bar->empty_char);
-    }
-    float progressPercentage = bar->current_value / bar->max_value;
-    printf("The progress percentage is %.3f\n", progressPercentage);
-    printf("%.2f%%\n", progressPercentage * 100);
-}
-
-int checkExistDirectory(char *directoryPath)
-{
-    DIR *dir = opendir(directoryPath);
+    DIR *dir = opendir(path);
     if (dir)
     {
         closedir(dir);
-        return SUCCESS;
+        return TRUE;
     }
     else
-    {
-        return FAILURE;
-    }
+        return FALSE;
 }
 
-int isWhiteSpace(char *candString)
+// Function to check if a string contains only white spaces
+int isWhiteSpace(char *s)
 {
-    while (*candString != '\0')
+    while (*s != '\0')
     {
-        if (!isspace(*candString))
+        if (!isspace(*s))
+            return FALSE;
+        s++;
+    }
+    return TRUE;
+}
+
+// Function to extract the filename from a path
+char *getFilename(char *src)
+{
+    char *filename = src;
+    while (*src != '\0')
+    {
+        if (*src == '/')
+            filename = ++src;
+        src++;
+    }
+    return filename;
+}
+
+// Function to print error messages to standard error
+void printError(char *s)
+{
+    fprintf(stderr, "ERROR: %s\n", s);
+}
+
+// Function to print debug messages
+void printDebugMessage(char *s)
+{
+    printf("DEBUG: %s\n", s);
+    fflush(stdout);
+}
+
+// Function to check if file exist
+int existFile(char *filename)
+{
+    FILE *file;
+    file = fopen(filename, "r");
+
+    if (file == NULL)
+    {
+        return PATH_NOT_EXIST;
+    }
+    return PATH_EXIST;
+}
+
+// ============= Text Preprocessing Functions =============
+
+void toLowerCase(char *text)
+{
+    for (int i = 0; text[i]; i++)
+    {
+        if (isalpha(text[i]))
         {
-            return FAILURE;
+            text[i] = tolower(text[i]);
         }
-        candString++;
-    }
-    return SUCCESS;
-}
-
-char *extractFilename(char *filename)
-{
-    char *result;
-    result = filename;
-    while (*filename != '\0')
-    {
-        if (*filename == '/')
-            result = ++filename;
-        filename++;
-    }
-    return result;
-}
-
-int wav2mp3(char *source, char *dest)
-{
-    int read, write;
-    FILE *pcm = fopen(source, "rb");
-    FILE *mp3 = fopen(dest, "wb");
-
-    if (pcm == NULL || mp3 == NULL)
-    {
-        return EXIT_FAILURE;
-    }
-
-    const int PCM_SIZE = 8192;
-    short int pcm_buffer[PCM_SIZE * 2];
-    unsigned char mp3_buffer[PCM_SIZE * 2];
-
-    lame_t lame = lame_init();
-    lame_set_in_samplerate(lame, SAMPLE_RATE);  // Set input sample rate
-    lame_set_out_samplerate(lame, SAMPLE_RATE); // Set output sample rate (half of input)
-    lame_set_brate(lame, BIT_RATE);             // Set bitrate to 128 kbps
-    lame_set_mode(lame, STEREO);                // Set stereo mode
-    lame_set_VBR(lame, vbr_default);            // Use default VBR mode
-    lame_init_params(lame);
-
-    do
-    {
-        read = fread(pcm_buffer, 2 * sizeof(short int), PCM_SIZE, pcm);
-        if (read == 0)
-            write = lame_encode_flush(lame, mp3_buffer, PCM_SIZE * 2);
-        else
-            write = lame_encode_buffer_interleaved(lame, pcm_buffer, read, mp3_buffer, PCM_SIZE * 2);
-
-        fwrite(mp3_buffer, write, 1, mp3);
-    } while (read != 0);
-
-    lame_close(lame);
-    fclose(mp3);
-    fclose(pcm);
-
-    return SUCCESS;
-}
-
-int isAllowedPunctuation(char c)
-{
-    switch (c)
-    {
-    case ',':
-    case '.':
-    case '!':
-    case '"':
-    case ';':
-        return 1;
-    default:
-        return 0;
     }
 }
 
-void preprocessLine(char line[], char dest[])
+int regex_replace(char **str, const char *pattern, const char *replace)
 {
-    int i = 0, j = 0;
-    char prev = '\0';
-    while (line[i] != '\0' && j < TEXT_WINDOW - 1)
+    // Source: https://stackoverflow.com/questions/8044081/how-to-do-regex-string-replacements-in-pure-c
+    // replaces regex in pattern with replacement observing capture groups
+    // *str MUST be free-able, i.e. obtained by strdup, malloc, ...
+    // back references are indicated by char codes 1-31 and none of those chars can be used in the replacement string such as a tab.
+    // will not search for matches within replaced text, this will begin searching for the next match after the end of prev match
+    // returns:
+    //   -1 if pattern cannot be compiled
+    //   -2 if count of back references and capture groups don't match
+    //   otherwise returns number of matches that were found and replaced
+    //
+    regex_t reg;
+    unsigned int replacements = 0;
+    // if regex can't commpile pattern, do nothing
+    if (!regcomp(&reg, pattern, REG_EXTENDED))
     {
-        if (isAllowedPunctuation(line[i]) || line[i] == ' ' || line[i] == '\n' || line[i] == '\t' || isalpha(line[i]) || isdigit(line[i]))
+        size_t nmatch = reg.re_nsub;
+        regmatch_t m[nmatch + 1];
+        const char *rpl, *p;
+        // count back references in replace
+        int br = 0;
+        p = replace;
+        while (1)
         {
-            if (line[i] == '\n' && prev == '\n')
-            {
-                prev = line[i];
-            }
+            while (*++p > 31)
+                ;
+            if (*p)
+                br++;
             else
-            {
-                dest[j++] = line[i];
-            }
+                break;
+        } // if br is not equal to nmatch, leave
+        if (br != nmatch)
+        {
+            regfree(&reg);
+            return -2;
         }
-        i++;
-    }
-    if (j < TEXT_WINDOW)
-    {
-        dest[j] = '\0';
+        // look for matches and replace
+        char *new;
+        char *search_start = *str;
+        while (!regexec(&reg, search_start, nmatch + 1, m, REG_NOTBOL))
+        {
+            // make enough room
+            new = (char *)malloc(strlen(*str) + strlen(replace));
+            if (!new)
+                exit(EXIT_FAILURE);
+            *new = '\0';
+            strncat(new, *str, search_start - *str);
+            p = rpl = replace;
+            int c;
+            strncat(new, search_start, m[0].rm_so); // test before pattern
+            for (int k = 0; k < nmatch; k++)
+            {
+                while (*++p > 31)
+                    ;                       // skip printable char
+                c = *p;                     // back reference (e.g. \1, \2, ...)
+                strncat(new, rpl, p - rpl); // add head of rpl
+                // concat match
+                strncat(new, search_start + m[c].rm_so, m[c].rm_eo - m[c].rm_so);
+                rpl = p++; // skip back reference, next match
+            }
+            strcat(new, p); // trailing of rpl
+            unsigned int new_start_offset = strlen(new);
+            strcat(new, search_start + m[0].rm_eo); // trailing text in *str
+            // free(*str);
+            *str = (char *)malloc(strlen(new) + 1);
+            strcpy(*str, new);
+            search_start = *str + new_start_offset;
+            free(new);
+            replacements++;
+        }
+        regfree(&reg);
+
+        // adjust size
+        *str = (char *)realloc(*str, strlen(*str) + 1);
+        return replacements;
     }
     else
     {
-        dest[TEXT_WINDOW - 1] = '\0';
+        return -1;
     }
 }
 
-int preprocessTextFile(char *source, char dest[])
+void removeNonAlphanumeric(char *str)
 {
-    FILE *inputFile = fopen(source, "r");
-    if (inputFile == NULL)
+    int i, j = 0;
+    for (i = 0; str[i] != '\0'; i++)
     {
-        return FAILURE;
+        // Check if the character is alphanumeric
+        if (isalnum(str[i]) || str[i] == ' ')
+        {
+            // If alphanumeric, keep the character
+            str[j++] = str[i];
+        }
     }
+    // Add the null terminator to mark the end of the new string
+    str[j] = '\0';
+}
 
-    FILE *outputFile = fopen(dest, "w");
-    if (outputFile == NULL)
+int removeWhiteSpace(char **str)
+{
+    const char *pattern = "\\s+";
+    const char replace[] = " ";
+
+    return regex_replace(str, pattern, replace);
+}
+
+int removeNewLines(char *str)
+{
+    int i;
+    // Iterate through the string
+    for (i = 0; str[i] != '\0'; i++)
     {
-        fclose(inputFile);
-        return FAILURE;
+        // If the current character is '\n', replace it with space
+        if (str[i] == '\n')
+        {
+            str[i] = ' ';
+        }
     }
-
-    char line[TEXT_WINDOW];
-    char proc_line[TEXT_WINDOW];
-    while (fgets(line, sizeof(line), inputFile) != NULL)
-    {
-        preprocessLine(line, proc_line);
-        fputs(proc_line, outputFile);
-    }
-
-    fclose(inputFile);
-    fclose(outputFile);
     return SUCCESS;
 }
 
-int max(int a, int b)
+int replacePunctuation(char **str)
 {
-    return (a > b) ? a : b;
+    const char *pattern1 = "&";
+    const char replace1[] = " and ";
+    int _1 = regex_replace(str, pattern1, replace1);
+
+    const char *pattern2 = "+";
+    const char replace2[] = " plus ";
+    int _2 = regex_replace(str, pattern2, replace2);
+
+    const char *pattern3 = "@";
+    const char replace3[] = " at the rate ";
+    int _3 = regex_replace(str, pattern3, replace3);
+
+    const char *pattern4 = "#";
+    const char replace4[] = " hash ";
+    int _4 = regex_replace(str, pattern4, replace4);
+
+    const char *pattern5 = "=";
+    const char replace5[] = " equals ";
+    int _5 = regex_replace(str, pattern5, replace5);
+
+    // const char *pattern5 = "[^\\w\\s]";
+    // const char replace5[] = "";
+    // int _5 = regex_replace(str, pattern5, replace5);
+
+    return _1 & _2 & _3 & _4 & _5;
 }
-int min(int a, int b)
+
+void tokenize(FILE *output_file, char *buffer)
 {
-    return (a < b) ? a : b;
+    const char *delimiter = " ";
+    char *token;
+
+    token = strtok(buffer, delimiter);
+    int count = 0;
+
+    while (token != NULL)
+    {
+        fputs(token, output_file);
+        count++;
+
+        if (count >= WORD_GROUP_SIZE)
+        {
+            fputc('\n', output_file);
+            fputs("> ", output_file);
+            count = 0;
+        }
+        else
+        {
+            fputc(' ', output_file);
+        }
+        token = strtok(NULL, delimiter);
+    }
+}
+
+int preprocessTextFile()
+{
+    if (!existFile(TEXT_EXTRACT_PATH))
+    {
+        printError("Output File doesn't exist.");
+        return FAILURE;
+    }
+
+    FILE *fp;
+    fp = fopen(TEXT_EXTRACT_PATH, "r");
+
+    if (fp == NULL)
+    {
+        printError("Could not open Output File.");
+        return FAILURE;
+    }
+
+    FILE *op;
+    op = fopen(TEXT_COMPACT_PATH, "w+");
+    if (op == NULL)
+    {
+        printError("Could not open Compact Output File.");
+        return FAILURE;
+    }
+
+    char buffer[BUFFER_SIZE];
+    while (fgets(buffer, sizeof(buffer), fp) != NULL)
+    {
+        char *_ = &buffer[0];
+        toLowerCase(_);
+        removeNewLines(_);
+        removeWhiteSpace(&_);
+        replacePunctuation(&_);
+        fputs(_, op);
+    }
+
+    fclose(fp);
+
+    fflush(op);
+    fseek(op, 0, SEEK_SET);
+
+    FILE *pop;
+    pop = fopen(PROCESSED_TEXT_PATH, "w");
+    if (pop == NULL)
+    {
+        printError("Could not open Processed Output File.");
+        return FAILURE;
+    }
+    while (fgets(buffer, sizeof(buffer), op) != NULL)
+    {
+        removeNonAlphanumeric(buffer);
+        tokenize(pop, buffer);
+    }
+
+    fclose(op);
+    fclose(pop);
+
+    return SUCCESS;
 }

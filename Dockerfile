@@ -15,7 +15,17 @@ WORKDIR /app
 COPY . /app
 
 # Install other necessary dependencies
-RUN apt-get install -y libzip-dev libxml2-dev cmake libmp3lame-dev python3 python3-pip lame festival libavformat-dev libavcodec-dev libavutil-dev && \
+RUN apt-get install -y libzip-dev \
+    libxml2-dev \
+    cmake \
+    libmp3lame-dev \
+    python3 \
+    python3-pip \
+    lame \
+    festival \
+    libavformat-dev \
+    libavcodec-dev \
+    libavutil-dev \
     pip3 install --upgrade pip && \
     pip3 install --no-cache-dir setuptools PyMuPDF
 

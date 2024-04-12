@@ -1,59 +1,46 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <stdio.h>
-#include <string.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <ncurses.h>
-
-#ifdef _WIN32
-#include <Windows.h>
-#include <Shlwapi.h>
-#pragma comment(lib, "Shlwapi.lib")
-#else
-#include <unistd.h>
-#endif
-
 #define SUCCESS 0
 #define FAILURE 1
-#define TYPE_EPUB 1
-#define TYPE_PDF 2
-#define TYPE_TEXT 3
-#define TEXT_WINDOW 1024
+#define TRUE 1
+#define FALSE 0
+#define min(a, b) ((a < b) ? a : b)
+#define max(a, b) ((a < b) ? b : a)
+
+// Supported File Types
+#define TYPE_TXT 0
+#define TYPE_PDF 1
+#define TYPE_EPUB 2
+#define TYPE_HTML 3
+#define TYPE_UNSUPPORTED -1
+
+#define PATH_EXIST 1
+#define PATH_NOT_EXIST 0
+#define BUFFER_SIZE 256
+#define WORD_GROUP_SIZE 15
+
+// Intermediate File Paths
 #define CACHE_PREFIX "/tmp/_zunge_cache__/"
-#define OUTPUT_TEXT "output.txt"
-#define PROC_OUTPUT_TEXT "proc_output.txt"
+#define TEXT_EXTRACT_PATH "/tmp/_zunge_cache__/output.txt"
+#define PROCESSED_TEXT_PATH "/tmp/_zunge_cache__/proc_output.txt"
+#define TEMP_HTML_PATH "/tmp/_zunge_cache__/html_temp.html"
+#define TEXT_COMPACT_PATH "/tmp/_zunge_cache__/text_compact.txt"
 
-typedef struct
-{
-    float current_value;
-    int max_value;
-    char fill_char;
-    char empty_char;
-} ProgressBar;
-
-void init_progress_bar(ProgressBar *bar, int max_value, char fill_char, char empty_char);
-void update_progress_bar(ProgressBar *bar, float increment);
-void draw_progress_bar(ProgressBar *bar);
-void getExecutableDirectory(char *buffer, size_t bufferSize);
-int is_html_file(char filename[]);
-int get_file_type(char filename[]);
-void generateNameFromInt(char name[], int n);
-void extract_p_tags(xmlNode *node, FILE *output_file);
-char *html_parser(char *source, char *dest);
-size_t FindStringInBuffer(const char *buffer, const char *searchStr, size_t bufferLen);
-void generateScriptFromText(char filename[]);
-int checkExistDirectory(char *directoryPath);
-int isWhiteSpace(char *candString);
-char *extractFilename(char *source);
-int wav2mp3(char *source, char *dest);
-int preprocessTextFile(char *source, char dest[]);
-void preprocessLine(char line[], char dest[]);
-void interrupt_handler(int signum);
-int max(int a, int b);
-int min(int a, int b);
+int fileType(char *filename);
+int existDirectory(char *path);
+int isWhiteSpace(char *string);
+void printError(char *string);
+void printDebugMessage(char *string);
+int existFile(char *filename);
+char *getFilename(char *src);
+void toLowerCase(char *text);
+int regex_replace(char **str, const char *pattern, const char *replace);
+void removeNonAlphanumeric(char *str);
+int removeWhiteSpace(char **str);
+int removeNewLines(char *str);
+int replacePunctuation(char **str);
+void tokenize(FILE *output_file, char *buffer);
+int preprocessTextFile();
 
 #endif
