@@ -73,6 +73,11 @@ void printDebugMessage(char *s)
     fflush(stdout);
 }
 
+void printWarning(char *s)
+{
+    fprintf(stdout, "WARNING: %s\n", s);
+}
+
 // Function to check if file exist
 int existFile(char *filename)
 {
@@ -86,8 +91,9 @@ int existFile(char *filename)
     return PATH_EXIST;
 }
 
-// ============= Text Preprocessing Functions =============
+// ============= Text Processing Functions =============
 
+// Function to convert text to lowercase
 void toLowerCase(char *text)
 {
     for (int i = 0; text[i]; i++)
@@ -99,6 +105,7 @@ void toLowerCase(char *text)
     }
 }
 
+// Function to replace matches of a regex pattern with a replacement string in a given string
 int regex_replace(char **str, const char *pattern, const char *replace)
 {
     // Source: https://stackoverflow.com/questions/8044081/how-to-do-regex-string-replacements-in-pure-c
@@ -110,15 +117,17 @@ int regex_replace(char **str, const char *pattern, const char *replace)
     //   -1 if pattern cannot be compiled
     //   -2 if count of back references and capture groups don't match
     //   otherwise returns number of matches that were found and replaced
-    //
+
     regex_t reg;
     unsigned int replacements = 0;
-    // if regex can't commpile pattern, do nothing
+
+    // if regex can't compile pattern, return -1
     if (!regcomp(&reg, pattern, REG_EXTENDED))
     {
         size_t nmatch = reg.re_nsub;
         regmatch_t m[nmatch + 1];
         const char *rpl, *p;
+
         // count back references in replace
         int br = 0;
         p = replace;
@@ -130,15 +139,19 @@ int regex_replace(char **str, const char *pattern, const char *replace)
                 br++;
             else
                 break;
-        } // if br is not equal to nmatch, leave
+        }
+
+        // if br is not equal to nmatch, return -2
         if (br != nmatch)
         {
             regfree(&reg);
             return -2;
         }
+
         // look for matches and replace
         char *new;
         char *search_start = *str;
+
         while (!regexec(&reg, search_start, nmatch + 1, m, REG_NOTBOL))
         {
             // make enough room
@@ -182,6 +195,7 @@ int regex_replace(char **str, const char *pattern, const char *replace)
     }
 }
 
+// Function to remove non-alphanumeric characters from a string
 void removeNonAlphanumeric(char *str)
 {
     int i, j = 0;
@@ -198,6 +212,7 @@ void removeNonAlphanumeric(char *str)
     str[j] = '\0';
 }
 
+// Function to remove whitespace characters from a string
 int removeWhiteSpace(char **str)
 {
     const char *pattern = "\\s+";
@@ -206,6 +221,7 @@ int removeWhiteSpace(char **str)
     return regex_replace(str, pattern, replace);
 }
 
+// Function to remove newline characters from a string
 int removeNewLines(char *str)
 {
     int i;
@@ -221,6 +237,7 @@ int removeNewLines(char *str)
     return SUCCESS;
 }
 
+// Function to replace punctuation characters with appropriate replacements in a string
 int replacePunctuation(char **str)
 {
     const char *pattern1 = "&";
@@ -243,13 +260,10 @@ int replacePunctuation(char **str)
     const char replace5[] = " equals ";
     int _5 = regex_replace(str, pattern5, replace5);
 
-    // const char *pattern5 = "[^\\w\\s]";
-    // const char replace5[] = "";
-    // int _5 = regex_replace(str, pattern5, replace5);
-
     return _1 & _2 & _3 & _4 & _5;
 }
 
+// Function to tokenize a string and write the tokens to a file
 void tokenize(FILE *output_file, char *buffer)
 {
     const char *delimiter = " ";
@@ -266,7 +280,6 @@ void tokenize(FILE *output_file, char *buffer)
         if (count >= WORD_GROUP_SIZE)
         {
             fputc('\n', output_file);
-            fputs("> ", output_file);
             count = 0;
         }
         else
@@ -277,8 +290,10 @@ void tokenize(FILE *output_file, char *buffer)
     }
 }
 
+// Function to preprocess a text file
 int preprocessTextFile()
 {
+    // Check if the output file exists
     if (!existFile(TEXT_EXTRACT_PATH))
     {
         printError("Output File doesn't exist.");
@@ -288,6 +303,7 @@ int preprocessTextFile()
     FILE *fp;
     fp = fopen(TEXT_EXTRACT_PATH, "r");
 
+    // Check if the output file can be opened
     if (fp == NULL)
     {
         printError("Could not open Output File.");
@@ -335,4 +351,67 @@ int preprocessTextFile()
     fclose(pop);
 
     return SUCCESS;
+}
+
+// ========= Dynamic Array Data Structure =========
+
+// Function to initialize the dynamic array
+DynamicArray *initDynamicArray()
+{
+    DynamicArray *arr = (DynamicArray *)malloc(sizeof(DynamicArray));
+    if (arr == NULL)
+    {
+        printf("Memory allocation failed\n");
+        return NULL;
+    }
+    arr->array = (unsigned long int *)malloc(INITIAL_CAPACITY * sizeof(unsigned long int));
+    if (arr->array == NULL)
+    {
+        printf("Memory allocation failed\n");
+        free(arr);
+        return NULL;
+    }
+    arr->size = 0;
+    arr->capacity = INITIAL_CAPACITY;
+    return arr;
+}
+
+// Function to resize the dynamic array if needed
+void resizeArray(DynamicArray *arr)
+{
+    if (arr->size >= arr->capacity)
+    {
+        arr->capacity *= 2;
+        arr->array = (unsigned long int *)realloc(arr->array, arr->capacity * sizeof(unsigned long int));
+        if (arr->array == NULL)
+        {
+            printf("Memory allocation failed\n");
+            exit(1);
+        }
+    }
+}
+
+// Function to add an element to the dynamic array
+void append(DynamicArray *arr, unsigned long int value)
+{
+    resizeArray(arr);
+    arr->array[arr->size++] = value;
+}
+
+// Function to get an element from the dynamic array
+unsigned long int get(DynamicArray *arr, long int index)
+{
+    if (index < 0 || index >= arr->size)
+    {
+        printf("Index out of bounds\n");
+        exit(1);
+    }
+    return arr->array[index];
+}
+
+// Function to free the memory allocated for the dynamic array
+void freeDynamicArray(DynamicArray *arr)
+{
+    free(arr->array);
+    free(arr);
 }

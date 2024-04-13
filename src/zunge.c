@@ -1,5 +1,7 @@
 #include "doc_parser.h"
 #include "utils.h"
+#include "tts.h"
+#include "interactive.h"
 
 int main(int argc, char **argv)
 {
@@ -11,12 +13,14 @@ int main(int argc, char **argv)
             int code = extractTextFromEPUB(filename);
             printf("%d\n", code);
             preprocessTextFile();
+            streamScreen();
         }
         else if (fileType(filename) == TYPE_PDF)
         {
             int code = extractTextFromPDF(filename);
             printf("%d\n", code);
             preprocessTextFile();
+            streamScreen();
         }
     }
     else

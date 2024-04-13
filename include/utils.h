@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <stdio.h>
+
 #define SUCCESS 0
 #define FAILURE 1
 #define TRUE 1
@@ -26,6 +28,16 @@
 #define PROCESSED_TEXT_PATH "/tmp/_zunge_cache__/proc_output.txt"
 #define TEMP_HTML_PATH "/tmp/_zunge_cache__/html_temp.html"
 #define TEXT_COMPACT_PATH "/tmp/_zunge_cache__/text_compact.txt"
+#define LOG_FILE_PATH "zunge.log"
+#define WAV_FILE_PATH "/tmp/_zunge_cache__/zungeAudio.wav"
+
+#define INITIAL_CAPACITY 100
+typedef struct
+{
+    unsigned long int *array;
+    long int size;
+    long int capacity;
+} DynamicArray;
 
 int fileType(char *filename);
 int existDirectory(char *path);
@@ -42,5 +54,12 @@ int removeNewLines(char *str);
 int replacePunctuation(char **str);
 void tokenize(FILE *output_file, char *buffer);
 int preprocessTextFile();
+void printWarning(char *string);
+
+DynamicArray *initDynamicArray();
+void resizeArray(DynamicArray *arr);
+void append(DynamicArray *arr, unsigned long int vaue);
+unsigned long int get(DynamicArray *arr, long int index);
+void freeDynamicArray(DynamicArray *arr);
 
 #endif
