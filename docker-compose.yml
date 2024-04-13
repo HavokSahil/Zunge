@@ -7,8 +7,4 @@ services:
       dockerfile: Dockerfile
     volumes:
       - .:/app
-      - cmake_build:/app/build  # Mount a volume for the build folder
     command: ["bash"]
-
-volumes:
-  cmake_build: 
