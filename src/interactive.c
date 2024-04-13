@@ -15,16 +15,6 @@
 #define SILENT_READER 0
 #define VOICED_READER 1
 
-// All Theme Options
-#define THEME_DARK_GREEN 0
-#define THEME_DARK_CYAN 1
-#define THEME_DARK_WHITE 2
-#define THEME_DARK_MAGENTA 3
-#define THEME_DARK_YELLOW 4
-#define THEME_LIGHT_RED 5
-#define THEME_LIGHT_BLUE 6
-#define THEME_LIGHT_BLACK 7
-
 // Function to initialize the interactive screen
 
 Settings *initialiseSettings()
@@ -89,7 +79,7 @@ int testSettings()
     return SUCCESS;
 }
 
-int streamScreen()
+int streamScreen(int theme, int readMode)
 {
 
     Settings *settings = initialiseSettings();
@@ -98,6 +88,10 @@ int streamScreen()
     {
         return FAILURE;
     }
+
+    // Set the theme configuration
+    settings->theme = theme;
+    settings->readMode = readMode;
 
     // Open the file for reading
     FILE *fp;

@@ -5,6 +5,8 @@
 #include <ctype.h>  // Character classification
 #include <stdio.h>  // Standard input/output
 #include <regex.h>  // Regular Expression header file
+#include <sys/stat.h>
+#include <sys/types.h>
 
 // Function to determine the file type based on its extension
 int fileType(char *filename)
