@@ -15,13 +15,6 @@
 #define ERROR_MISSING_ARGS "2"
 #define ERROR_MISSING_SOURCE "-1"
 
-// Function prototypes
-int extractTextFromEPUB(char *epubFilePath);
-void convertHtmlTagsToText(xmlNode *node, FILE *outputFile);
-void parseHtmlFile(char *htmlFilePath, char *outputFilePath);
-char *generateHtmlFileNameFromIndex(int index, char *filenameBuffer);
-int extractTextFromPDF(char *pdfFilePath);
-
 // Function to extract text content from an EPUB file
 int extractTextFromEPUB(char *epubFilePath)
 {
@@ -177,7 +170,7 @@ int extractTextFromPDF(char *pdfFilePath)
 
     // Construct the command to execute the Python script
     char command[512];
-    sprintf(command, "python3 pdf_to_text.py %s %s", pdfFilePath, outputFilePath);
+    sprintf(command, "python3 %s %s %s", PYTHON_SCRIPT_PATH, pdfFilePath, outputFilePath);
 
     // Open a pipe to execute the command
     fp = popen(command, "r");
