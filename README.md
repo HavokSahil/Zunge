@@ -12,6 +12,7 @@ Zunge is a text documents to audio converter with interactive reader. It uses [f
 - Interactive Reader
 - Lightweight
 - Runs on terminal
+- Multiple theme options
 
 
 ## Deployment
@@ -21,11 +22,12 @@ To deploy this project, clone this repository
 ```bash
   git clone https://github.com/havoksahil/zunge
   cd zunge
-  mkdir build
-  cd build
-  cmake ..
-  make
-  sudo make install
+  chmod +x install.sh
+  bash install.sh
+
+  # to uninstall zunge
+  chmod +x uninstall.sh
+  bash uninstall.sh
 ```
 
 
@@ -40,12 +42,15 @@ zunge -f example.epub -o story.mp3
 
 # start interactive reader
 zunge -f example.epub -i
+
+# start interactive reader with speak on with theme active
+zunge -f example.pdf -i -s -t 3
 ```
 
 
 ## Screenshots
 
-![App Screenshot](https://github.com/HavokSahil/Zunge/assets/87008169/e81237f7-c34f-4f2a-a3c1-9eae62be4879)
+![App Screenshot](https://github.com/HavokSahil/Zunge/assets/87008169/602fa937-0ab7-4040-b82d-c44324bc20ec)
 
 
 ## Arguments
@@ -57,7 +62,8 @@ zunge -f example.epub -i
 | `-f`      | `filename`| **Required**. input filename |
 | `-o`      | `filename` | **Optional**. output filename |
 | `-i`      | `interactive` | **Optional**. interactive mode |
-| `-b`      | `bitrate` | **Optional**. bitrate of mp3 compression |
+| `-s`      | `reader` | **Optional**. read out the text |
+| `-t`      | `theme` | **Optional**. choose theme |
 | `-h`      | `filename` | **Optional**. show help |
 
 
